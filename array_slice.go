@@ -67,8 +67,26 @@ func main() {
 	sliceA := []int{1,2,3}
 	sliceB := []int{3,3,3}
 	
+	sliceC := make([]int , len(sliceB), cap(sliceB)*2)
+	
+	//슬라이스 자르기 slice[시작인덱스 , 마지막인덱스+1]
+	//copy랑은 다르게 주소를 복사해오는거라 원본 값 바뀌면 같이 변경됨 
+	sliceD := sliceB[0 :3]
+	fmt.Println("SLICE D ,",sliceD)
+	
 	fmt.Println(sliceA)
 	sliceA = append(sliceA , sliceB...)
 	fmt.Println(sliceA , cap(sliceA))
 	
+	fmt.Println(sliceB,len(sliceB) , cap(sliceB))
+	
+	//요소는 복사하지만 속성은 변경되지않는다?
+	copy(sliceC , sliceB);
+	fmt.Println(sliceC, len(sliceC) , cap(sliceC))
+	
+	sliceB[0] =1000;
+	fmt.Println(sliceC, len(sliceC) , cap(sliceC))
+	
+	fmt.Println("SLICE D ,",sliceD)
+		
 }
