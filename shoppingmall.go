@@ -50,11 +50,13 @@ func buying(items []item , buyer1 *buyer , choice int , numbuy *int , ch chan bo
 	}()
 	
 	 
-	
+	/*
 	if(*numbuy >=5){
 		fmt.Println("배송 한도를 초과햇습니다.")
 		return
 	}
+	// 장바구니 로직 진입 안됨 수정 필요 
+	*/ 
 	
 	
 	inputcount := -1
@@ -73,6 +75,7 @@ func buying(items []item , buyer1 *buyer , choice int , numbuy *int , ch chan bo
 	//구매 로직
 	if inputmenu == 1{
 		//포인트 차감
+		if *numbuy < 5 {
 		buyer1.point -= items[choice].price * inputcount
 		//수량 차감
 		items[choice].count -= inputcount
@@ -80,6 +83,9 @@ func buying(items []item , buyer1 *buyer , choice int , numbuy *int , ch chan bo
 		temp[items[choice].name] = inputcount
 		*numbuy++
 		ch <- true
+		}else{
+	fmt.Println("배송량 초과 되어 잠시 후 구매해주세요 .")	
+	}
 		
 	}else if inputmenu == 2{
 	//장바구니 로직
@@ -128,6 +134,9 @@ func checkshipping(deli []delivery){
 	for i :=0 ; i < len(deli) ; i++{
 		
 		fmt.Println(i+1 , " : ",deli[i].status)
+		for index , cnt := range deli[i].onedeli{
+			fmt.Println("     |_ ", index , cnt)	
+		}
 	}
 	
 	
@@ -279,13 +288,11 @@ func main() {
 func bucketbuy(itms []item , bys *buyer , numbuy *int, ch chan bool, temp map[string]int){
 
  
-	if(*numbuy >=5 ){
-		fmt.Println("배송 한도를 초과 햇습니다.")
-		return
-	}
+
 	if len(bys.wish) == 0{
 		return
 	}
+	if *numbuy < 5{
 	
 	for itm, cnt := range bys.wish{
 		for i:=0 ; i < len(itms) ; i++{
@@ -304,7 +311,12 @@ func bucketbuy(itms []item , bys *buyer , numbuy *int, ch chan bool, temp map[st
 	*numbuy++
 	ch <- true
 	fmt.Println("주문이 접수 되었습니다.")
-}
+	}else{
+	fmt.Println("배송량 초과 되어 잠시 후 구매해주세요 .")	
+		
+	}
+	
+	}
 
 func requirePoint(itms []item , bys buyer) (bool){
 	
