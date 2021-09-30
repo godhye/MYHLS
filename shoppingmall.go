@@ -49,7 +49,12 @@ func buying(items []item , buyer1 *buyer , choice int , numbuy *int , ch chan bo
 		}
 	}()
 	
+	 
 	
+	if(*numbuy >=5){
+		fmt.Println("배송 한도를 초과햇습니다.")
+		return
+	}
 	
 	
 	inputcount := -1
