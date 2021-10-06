@@ -1,50 +1,41 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"io/ioutil"
 	"net/http"
+	_ "strings"
 )
 
 func main() {
 
-	//get으로 resp에 데이터 가져옴
+	/*  reqbody := bytes.NewBufferString("Post Plain text")
+	resp, err := http.Post("http://httpbin.org/post", "text/plain", &reqbody)
+	if err != nil {
+		panic(err)
+	}
+	*/
 
-	fmt.Println("Get Method : http Get 사용 / naver.com")
-	resp, err := http.Get("https://www.naver.com/")
-	data, err := ioutil.ReadAll(resp.Body)
+	//io.reader : 어떤 구조체든 매개변수로 바이트 슬라이스를 받고,
+	//정수와 에러 값을 리턴하는 Read 함수를 가지고 있으면 io.Reader 인터페이스를 따른다고 할 수 있습니다
+
+	//var buf bytes.Buffer //힙메모리 할당 발생
+	//buf.WriteString("name")
+	//resp, err := http.Post("http://httpbin.org/post", "text/plain", &buf)
+
+	//buf := strings.NewReader("age")
+	buf := bytes.NewReader([]byte{13, 1, 2, 3})
+	resp, err := http.Post("http://httpbin.org/post", "text/plain", buf)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%s\n\n", string(data)[0:100])
+	defer resp.Body.Close()
 
-	//data 초기화
-	data = []byte{}
-
-	fmt.Println("Get Method : Request 객체, Http.Clinet 사용 /  google.com")
-	//request 객체 생성
-	req, err := http.NewRequest("GET", "https://www.google.com", nil)
-	if err != nil {
-		panic(err)
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err == nil {
+		str := string(respBody)
+		println(str)
 	}
 
-	//헤더 추가
-	req.Header.Add("User-Agent", "Crawler")
-
-	client := &http.Client{}
-
-	//Client 객체를 통해 req 호출
-	resp, err = client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	//결과 출력
-	data, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s\n\n", string(data)[0:100])
 }
