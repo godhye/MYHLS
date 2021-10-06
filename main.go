@@ -10,6 +10,11 @@ import (
 	_ "strings"
 )
 
+type Person struct {
+		Name  string
+		Phone string
+	}
+
 func main() {
 
 	/*  reqbody := bytes.NewBufferString("Post Plain text")  1
@@ -58,10 +63,7 @@ func main() {
 		println(str)
 	}
 
-	type Person struct {
-		Name  string
-		phone string
-	}
+	
 	//json 전송
 	person := Person{"name", "0109-"}
 	pbytes, err := json.Marshal(person)
