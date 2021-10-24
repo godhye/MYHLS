@@ -8,7 +8,8 @@ go를 활용해 스트리밍 서비스 구현하기
 
 - 진행사항
 - [x] go언어 기초
-- [ ] http server 다루기
+- [x] http server 다루기
+- [ ] server , client (echo server , session with gozilra) 
 - [ ] ffmpeg 연동
 - [ ] h264 연동
 - [ ] aac 연동
