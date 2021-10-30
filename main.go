@@ -1,34 +1,126 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"html/template"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
+var addr = flag.String("addr ", "127.0.0.1:8000", "http service address")
+
+var upgrader = websocket.Uprader{}
+
 func main() {
-	//127.0.0.1:5000/
-	//메인 홈페이지 , homehtml 에는 사진 , 사진위에 글씨 출력
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Printf(req.URL.Path + "\n")
-		p := "." + req.URL.Path
-		if p == "./" {
-			p = "./data/home.html"
-		}
-		//p에 있는 파일을 w에 담아서 보냄
-		http.ServeFile(w, req, p)
-	})
+	flag.Parse()
+	log.SetFlags(0)
+	http.HandleFunc("./echo", echo)
+	http.HandleFunc("/", home)
+	log.Fatal(http.ListenAndServe(*addr, nil))
 
-	//127.0.0.1:5000/data ./data폴더에 있는 파일 다운로드 서버 제공
-	http.Handle("/data", http.FileServer(http.Dir(".")))
-
-	//127.0.0.1:5000/hls  버튼 눌러 동영상 재생 , hls 제공 예정
-	http.HandleFunc("/hls", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Printf(req.URL.Path)
-		p := "." + req.URL.Path
-		if p == "./hls" {
-			p = "./data/test.html"
-		}
-		http.ServeFile(w, req, p)
-	})
-	http.ListenAndServe(":5000", nil)
 }
+
+func home(w http.ResponseWriter, r *http.Request) {
+	homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
+}
+
+func echo(w http.ResponseWriter, r *http.Request) {
+
+	c, err := upgrader.Uprader(w, r, nil)
+	if err != nil {
+		log.Print("upgrade: ", err)
+		return
+	}
+	defer c.Close()
+
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			log.Print("read: ", err)
+			break
+		}
+		log.Print("recv : %s", message)
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			log.Print("write: ", err)
+			break
+
+		}
+	}
+}
+
+var homeTemplate = template.Must(template.New("").Parse(`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>  
+window.addEventListener("load", function(evt) {
+    var output = document.getElementById("output");
+    var input = document.getElementById("input");
+    var ws;
+    var print = function(message) {
+        var d = document.createElement("div");
+        d.textContent = message;
+        output.appendChild(d);
+        output.scroll(0, output.scrollHeight);
+    };
+    document.getElementById("open").onclick = function(evt) {
+        if (ws) {
+            return false;
+        }
+        ws = new WebSocket("{{.}}");
+        ws.onopen = function(evt) {
+            print("OPEN");
+        }
+        ws.onclose = function(evt) {
+            print("CLOSE");
+            ws = null;
+        }
+        ws.onmessage = function(evt) {
+            print("RESPONSE: " + evt.data);
+        }
+        ws.onerror = function(evt) {
+            print("ERROR: " + evt.data);
+        }
+        return false;
+    };
+    document.getElementById("send").onclick = function(evt) {
+        if (!ws) {
+            return false;
+        }
+        print("SEND: " + input.value);
+        ws.send(input.value);
+        return false;
+    };
+    document.getElementById("close").onclick = function(evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.close();
+        return false;
+    };
+});
+</script>
+</head>
+<body>
+<table>
+<tr><td valign="top" width="50%">
+<p>Click "Open" to create a connection to the server, 
+"Send" to send a message to the server and "Close" to close the connection. 
+You can change the message and send multiple times.
+<p>
+<form>
+<button id="open">Open</button>
+<button id="close">Close</button>
+<p><input id="input" type="text" value="Hello world!">
+<button id="send">Send</button>
+</form>
+</td><td valign="top" width="50%">
+<div id="output" style="max-height: 70vh;overflow-y: scroll;"></div>
+</td></tr></table>
+</body>
+</html>
+`))
