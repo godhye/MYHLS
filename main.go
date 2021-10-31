@@ -9,26 +9,31 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr ", "127.0.0.1:8000", "http service address")
+//frag 인자들 파싱할 수 있게 도와주는 패키지
+//flag.String("address", "localhost", "Address to run to at")
+var addr = flag.String("addr", "127.0.0.1:8000", "http service address")
 
-var upgrader = websocket.Uprader{}
+//http Request , http Response 를 websocket에 맞게 커스터마이징 해주는 패키지
+var upgrader = websocket.Upgrader{}
 
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
-	http.HandleFunc("./echo", echo)
+	http.HandleFunc("/echo", echo)
 	http.HandleFunc("/", home)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
+	// r.Host 넣어준 이유는 주소와 포트 변경되도 대응되도록
 	homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
 }
 
 func echo(w http.ResponseWriter, r *http.Request) {
 
-	c, err := upgrader.Uprader(w, r, nil)
+	//c 웹소켓 객체 생성
+	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade: ", err)
 		return
@@ -36,12 +41,15 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	for {
+		// 메세지 받음, 동기?
 		mt, message, err := c.ReadMessage()
 		if err != nil {
 			log.Print("read: ", err)
 			break
 		}
-		log.Print("recv : %s", message)
+		log.Print("recv :", message)
+
+		//받은 메세지 그대로 보냄
 		err = c.WriteMessage(mt, message)
 		if err != nil {
 			log.Print("write: ", err)
@@ -71,6 +79,7 @@ window.addEventListener("load", function(evt) {
         if (ws) {
             return false;
         }
+
         ws = new WebSocket("{{.}}");
         ws.onopen = function(evt) {
             print("OPEN");
