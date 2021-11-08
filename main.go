@@ -47,7 +47,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			log.Print("read: ", err)
 			break
 		}
-		log.Print("recv :", message)
+		log.Print("recv :", string(message))
 
 		//받은 메세지 그대로 보냄
 		err = c.WriteMessage(mt, message)
