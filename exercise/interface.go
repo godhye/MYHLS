@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 //인터페이스 정의
 type Shape interface {
 	plussize()
@@ -30,7 +32,7 @@ func (r *Rect) getsize() float64 {
 }
 
 //반환값 포인터로 주지않으면 value copy
- 
+//Value receiver
 func (c *Circle) plussize() {
 	c.radius = c.radius + 1
 	println("Circle plussize\n ")
@@ -49,15 +51,41 @@ func showArea(shapes ...Shape) {
 
 	}
 }
+
+func printk(v interface{}) {
+	fmt.Println(v)
+}
+
 func main() {
 
 	//구조체 포인터로 선언
 	r := &Rect{10., 29.}
 	c := &Circle{2.}
 
-	r.plussize()  
-	c.plussize()  
+	r.plussize() //point receiver
+	c.plussize() //value receiver
 
 	//pointer receiver
 	showArea(r, c)
+
+	//빈 인터페이스 void*와 비슷
+	var x interface{}
+
+	x = 1
+	x = "string"
+
+	println("interface{}  x")
+
+	println(x) //주소값 2개 출력됨??
+	printk(x)
+
+	println("interface{}  intx")
+	var intx interface{}
+
+	intx = 4
+	intx = 33
+
+	println(intx)
+	printk(intx)
+
 }
