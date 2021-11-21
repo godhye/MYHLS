@@ -29,7 +29,7 @@ func (r Rect) perimeter() float64 {
 	return 2*r.width + 2*r.heigth
 }
 
-//포인터 전달하여 struct내 값 변경 반영 가능
+//포인터 전달하여 struct내 값 변경 반영
 //point receiver
 
 func (r *Rect) plussize() {
@@ -47,10 +47,16 @@ func (c Circle) perimeter() float64 {
 
 //반환값 포인터로 주지않으면 value copy
 //Value receiver
-func (c Circle) plussize() {
+func (c *Circle) plussize() {
 	c.radius = c.radius + 1
 }
 
+func showArea(shapes ...Shape) {
+	for _, s := range shapes {
+		a := s.area()
+		fmt.Printf("showArea = %.2f\n", a)
+	}
+}
 func main() {
 
 	r := Rect{10., 29.}
@@ -62,12 +68,15 @@ func main() {
 	fmt.Printf("%.2f\n", c.area())
 	fmt.Printf("%.2f\n", c.perimeter())
 
-	r.plussize()
-	c.plussize()
+	r.plussize() //point receiver
+	c.plussize() //value receiver
 
 	fmt.Printf("%.2f\n", r.area())
 	fmt.Printf("%.2f\n", r.perimeter())
 	fmt.Printf("%.2f\n", c.area())
 	fmt.Printf("%.2f\n", c.perimeter())
 
+
+	//pointer receiver 라서 불가능한데 어떻게 해결 ?
+	showArea(r, c) 
 }
