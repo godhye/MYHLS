@@ -85,7 +85,8 @@ func main() {
 	intx = 4
 	intx = 33
 
-	println(intx)
+	println(intx.(int)) //마지막 저장한값 int로 출력
+	println(intx)  // 저장된 값 포인터 2개 출력
 	printk(intx)
 
 }
