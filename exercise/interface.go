@@ -1,17 +1,10 @@
 package main
 
-import (
-	"fmt"
-	"math"
-)
-
 //인터페이스 정의
 type Shape interface {
-	area() float64
-	perimeter() float64
 	plussize()
+	getsize() float64
 }
-
 type Rect struct {
 	width, heigth float64
 }
@@ -21,13 +14,6 @@ type Circle struct {
 }
 
 //인터페이스 구현
-func (r Rect) area() float64 {
-	return r.width * r.heigth
-}
-
-func (r Rect) perimeter() float64 {
-	return 2*r.width + 2*r.heigth
-}
 
 //포인터 전달하여 struct내 값 변경 반영
 //point receiver
@@ -35,48 +21,43 @@ func (r Rect) perimeter() float64 {
 func (r *Rect) plussize() {
 	r.heigth = r.heigth + 1.
 	r.width = r.width + 1.
+	println("Rect plussize\n ")
 }
+func (r *Rect) getsize() float64 {
 
-func (c Circle) area() float64 {
-	return math.Pi * c.radius * c.radius
-}
-
-func (c Circle) perimeter() float64 {
-	return math.Pi * c.radius * 2
+	println("Rect getsize\n ")
+	return r.heigth + r.heigth
 }
 
 //반환값 포인터로 주지않으면 value copy
-//Value receiver
+ 
 func (c *Circle) plussize() {
 	c.radius = c.radius + 1
+	println("Circle plussize\n ")
+}
+func (c *Circle) getsize() float64 {
+
+	println("Circle getsize\n ")
+	return c.radius
 }
 
 func showArea(shapes ...Shape) {
 	for _, s := range shapes {
-		a := s.area()
-		fmt.Printf("showArea = %.2f\n", a)
+		a := s.getsize()
+		s.plussize()
+		println(a)
+
 	}
 }
 func main() {
 
-	r := Rect{10., 29.}
-	c := Circle{2.}
+	//구조체 포인터로 선언
+	r := &Rect{10., 29.}
+	c := &Circle{2.}
 
-	fmt.Printf("%.2f\n", r.area())
-	fmt.Printf("%.2f\n", r.perimeter())
+	r.plussize()  
+	c.plussize()  
 
-	fmt.Printf("%.2f\n", c.area())
-	fmt.Printf("%.2f\n", c.perimeter())
-
-	r.plussize() //point receiver
-	c.plussize() //value receiver
-
-	fmt.Printf("%.2f\n", r.area())
-	fmt.Printf("%.2f\n", r.perimeter())
-	fmt.Printf("%.2f\n", c.area())
-	fmt.Printf("%.2f\n", c.perimeter())
-
-
-	//pointer receiver 라서 불가능한데 어떻게 해결 ?
-	showArea(r, c) 
+	//pointer receiver
+	showArea(r, c)
 }
