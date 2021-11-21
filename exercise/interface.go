@@ -29,6 +29,9 @@ func (r Rect) perimeter() float64 {
 	return 2*r.width + 2*r.heigth
 }
 
+//포인터 전달하여 struct내 값 변경 반영 가능
+//point receiver
+
 func (r *Rect) plussize() {
 	r.heigth = r.heigth + 1.
 	r.width = r.width + 1.
@@ -41,7 +44,10 @@ func (c Circle) area() float64 {
 func (c Circle) perimeter() float64 {
 	return math.Pi * c.radius * 2
 }
-func (c *Circle) plussize() {
+
+//반환값 포인터로 주지않으면 value copy
+//Value receiver
+func (c Circle) plussize() {
 	c.radius = c.radius + 1
 }
 
